@@ -1,151 +1,306 @@
-# Kasauti (कसौटी): a touchstone for Indic voice AI
+# Kasauti (कसौटी) — Indic Voice AI Stress-Test Lab
 
-Stress-test lab for voice agents built on **Gnani Prisma v3.0 (STT)** and **Timbre v3.0 (TTS)**.
+**Testing how reliably voice AI understands Indian languages under real-world audio conditions.**
 
+Kasauti is an Indic Voice AI evaluation platform built using **Gnani AI's Timbre v3.0 (Text-to-Speech)** and **Prisma v3.0 (Speech-to-Text)** APIs.
+
+It generates or accepts speech samples, applies audio degradation such as telephone-channel effects and background noise, evaluates speech recognition results, and highlights errors in important information such as names, phone numbers, OTPs, and financial amounts.
+
+## 🎥 Demo Video
+
+<!-- Replace the placeholder below with your public LinkedIn, YouTube, or other demo video URL. -->
+
+**Watch the Kasauti application demo:**  
+
+
+https://github.com/user-attachments/assets/6be8831d-49b5-4d26-844d-bdcbe7b882d5
+
+
+
+The demonstration covers the dashboard, audio testing workflow, evaluation metrics, and transcription failure analysis.
+
+## 🚩 Problem Statement
+
+Voice AI systems are increasingly used in customer support, banking, financial services, and other enterprise applications.
+
+However, speech recognition can become less reliable when dealing with:
+
+- Regional Indian languages and code-mixed speech.
+- Telephone-quality audio and background noise.
+- Names, numbers, OTPs, and financial amounts.
+- Different speech recognition configurations.
+
+A transcription can appear mostly correct while still misrecognizing a critical number or customer detail.
+
+Kasauti addresses this problem by providing a structured way to stress-test and evaluate Indic voice AI systems.
+
+## 💡 What Kasauti Does
+
+1. **Generate speech:** Uses Gnani Timbre v3.0 to generate speech from test scripts.
+2. **Accept human recordings:** Supports importing recorded speech samples for evaluation.
+3. **Degrade audio:** Simulates telephone-channel effects and background noise.
+4. **Transcribe speech:** Uses Gnani Prisma v3.0 with configurable recognition settings.
+5. **Evaluate accuracy:** Calculates Word Error Rate (WER), Character Error Rate (CER), and entity recovery metrics.
+6. **Identify failures:** Highlights transcription errors involving names, numbers, OTPs, and amounts.
+7. **Visualize results:** Presents evaluation results and comparisons through an interactive dashboard.
+
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    A["Test Scripts"] --> B["Timbre v3.0 TTS"]
+    A --> C["Human Voice Recordings"]
+
+    B --> D["Audio Samples"]
+    C --> D
+
+    D --> E["Audio Degradation Lab"]
+    E --> F["Telephone Channel Effects"]
+    E --> G["Background Noise"]
+
+    F --> H["Prisma v3.0 STT"]
+    G --> H
+    D --> H
+
+    H --> I["Transcription Results"]
+    I --> J["Evaluation Engine"]
+
+    J --> K["WER / CER"]
+    J --> L["Entity Recovery"]
+    J --> M["Configuration Comparison"]
+
+    K --> N["Results Database"]
+    L --> N
+    M --> N
+
+    N --> O["Interactive Dashboard"]
+    N --> P["Reports and Recommendations"]
 ```
-script bank (40 BFSI/support calls: en, hi, hinglish, ta, te)
-   -> Timbre v3.0 synthesises the calls            (your own recordings can be added too)
-   -> degradation lab: telephony channel (300-3400 Hz, 8 kHz, mu-law) + babble/white noise at 20/10/5 dB SNR
-   -> Prisma v3.0 sweep: language hint vs indic-auto, format (transcribe/verbatim/codemix), keyterms
-   -> scoring: WER, CER, digit-string / amount / name recovery, language-detection accuracy
-   -> paired comparison with bootstrap CIs -> dashboard + recommendations
+
+## 🧠 Gnani AI Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| **Timbre v3.0** | Converts test scripts into speech |
+| **Prisma v3.0** | Converts audio into text |
+| **Gnani AI APIs** | Provides the speech generation and recognition capabilities |
+
+Kasauti uses these APIs to evaluate speech recognition performance across different languages, audio samples, and testing conditions.
+
+## 🌐 Languages and Test Samples
+
+The evaluation covers five speech categories:
+
+- English
+- Hindi
+- Hinglish
+- Tamil
+- Telugu
+
+The human-recording baseline contains 20 self-recorded samples, with four samples per category.
+
+The synthetic audio experiments provide additional testing under controlled audio conditions.
+
+## 📊 Evaluation Metrics
+
+| Metric | What it measures |
+|---|---|
+| **WER** | Word-level transcription errors |
+| **CER** | Character-level transcription errors |
+| **Entity Recall** | Recovery of important information such as names, numbers, and amounts |
+| **Digit Accuracy** | Correct recognition of phone numbers, OTPs, and other digit sequences |
+| **Amount Accuracy** | Correct recognition of financial amounts |
+
+Lower WER and CER indicate better transcription accuracy. Higher entity recovery indicates better preservation of important information.
+
+## 🔬 Preliminary Human Recording Results
+
+The following results are from 20 self-recorded audio samples evaluated using the corresponding language settings.
+
+| Language | Samples | Average WER |
+|---|---:|---:|
+| English | 4 | 18.84% |
+| Hindi | 4 | 32.34% |
+| Hinglish | 4 | 16.73% |
+| Tamil | 4 | 18.13% |
+| Telugu | 4 | 42.43% |
+| **Overall** | **20** | **25.69%** |
+
+**Overall average CER:** 18.12%
+
+**Average entity recall:** 86.84% across 19 scored samples.
+
+These are preliminary results from a small self-recorded sample set, not a representative language benchmark.
+
+### Important Evaluation Note
+
+The Hindi and Telugu recordings were made by a non-native speaker reading transliterated Roman-English scripts. These samples have not been validated by native speakers.
+
+The results should therefore be interpreted as preliminary technical observations rather than native-speaker performance benchmarks.
+
+## 🛠️ Technology Stack
+
+- **Language:** Python
+- **Speech APIs:** Gnani AI Timbre v3.0 and Prisma v3.0
+- **Dashboard:** Streamlit
+- **Data Processing:** Pandas, NumPy
+- **Audio Processing:** Python audio-processing libraries
+- **Storage:** SQLite
+- **Testing:** Pytest
+- **Configuration:** YAML
+
+## 📁 Project Structure
+
+```text
+Kasauti/
+│
+├── dashboard/
+│   └── app.py
+│
+├── docs/
+│   ├── DEMO_SCRIPT.md
+│   ├── POST_TEMPLATE.md
+│   └── WRITEUP_TEMPLATE.md
+│
+├── kasauti/
+│   ├── cli.py
+│   ├── config.py
+│   ├── db.py
+│   ├── degrade.py
+│   ├── gnani.py
+│   ├── mock.py
+│   ├── pipeline.py
+│   ├── recommend.py
+│   ├── report.py
+│   ├── scoring.py
+│   └── textnorm.py
+│
+├── tests/
+│   ├── conftest.py
+│   ├── test_degrade.py
+│   ├── test_pipeline_mock.py
+│   └── test_textnorm.py
+│
+├── .env.example
+├── .gitignore
+├── config.yaml
+├── README.md
+└── requirements.txt
 ```
 
-> **Honest status:** I could not reach `api.vachana.ai` from my build sandbox. Request shapes (endpoints, headers,
-> fields) were copied from docs.gnani.ai, and everything else (audio lab, scoring, DB, reports, dashboard) is
-> tested offline (`pytest`: 17 tests, plus a full mock run). Step 4 (`probe`) is the first live check; if it fails,
-> the error message tells you what to change (see Troubleshooting).
-> **Mock mode produces simulated transcripts. Never publish mock numbers.**
+Runtime data, recordings, databases, and generated reports are kept outside the public source repository.
 
----
+## ⚙️ Installation and Setup
 
-## 0. Requirements
-* Python 3.10+ (tested on 3.12), internet access, a Gnani API key from https://app.gnani.ai
-* Optional: `ffmpeg` (only to import non-WAV recordings of your own voice)
+### 1. Clone the repository
 
-## 1. Unzip and install
 ```bash
-unzip kasauti.zip && cd kasauti
-python -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
+git clone https://github.com/HemaRamachandran28/Kasauti.git
+cd Kasauti
+```
+
+### 2. Create a virtual environment
+
+**Windows PowerShell:**
+
+```powershell
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+**Linux / macOS:**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
+python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## 2. Verify the install offline (no key needed)
-```bash
-python -m pytest -q                  # expect: 17 passed
-python -m kasauti run-all --mock --profile smoke --yes
-python -m kasauti dashboard --mock   # opens http://localhost:8501 with a red MOCK banner
-```
-Stop the dashboard with Ctrl+C. Mock data lives in separate files (`data/kasauti_mock.db`), so it can never mix with real results.
+### 4. Configure the Gnani API key
 
-## 3. Add your API key
-```bash
-cp .env.example .env                 # Windows: copy .env.example .env
-# edit .env and paste:  GNANI_API_KEY=your-key
+Create a `.env` file using the example:
+
+**Windows PowerShell:**
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-## 4. Probe: one TTS call + two STT calls
-Before running it, note your credit balance in the console (app.gnani.ai).
-```bash
-python -m kasauti probe
-```
-It prints the transcript for a clean clip and its telephony version. Then:
-* **Listen** to the WAVs in `data/audio/`: the digits should be read one by one ("9 8 4 0 ..."). If Timbre reads them as one big number, change the digit spacing in `data/scripts.json`.
-* **Check your balance again** and compute credits per TTS / STT call (the docs I read don't publish this).
+Add your Gnani API key to `.env`:
 
-## 5. Plan your budget
-```bash
-python -m kasauti plan --profile core
+```env
+GNANI_API_KEY=your_gnani_api_key
 ```
-`core` = 20 scripts x 5 conditions = 100 variants. Baseline = 100 Prisma calls; with `sweep.mode: adaptive`
-the other three configs only run on the baseline's hard cases (expect roughly 250 calls total). Multiply by the
-per-call credits from step 4 and keep at least 40% of your 5,000 credits in reserve.
 
-## 6. Smoke run on real audio (about 25 API calls)
+Never commit your `.env` file or expose your API key publicly.
+
+### 5. Run the tests
+
 ```bash
-python -m kasauti run-all --profile smoke --yes
+python -m pytest -q
+```
+
+### 6. Launch the dashboard
+
+```bash
 python -m kasauti dashboard
 ```
 
-## 7. Core run
+The Streamlit dashboard should open locally, normally at:
+
+`http://localhost:8501`
+
+For offline testing, use the mock mode:
+
 ```bash
-python -m kasauti run-all --profile core
-```
-It is **resumable**: Ctrl+C or a network drop loses nothing, finished calls are never repeated. Check usage any time:
-```bash
-python -m kasauti status
+python -m kasauti dashboard --mock
 ```
 
-## 8. Add real human recordings (do not skip, about 1 hour)
-Synthetic audio is cleaner than real speakers and comes from the same vendor, so TTS-only tests are optimistic.
-Recording 25-30 real clips lets you report the synthetic-vs-human gap, which is the most credible finding you will have.
-```bash
-python -m kasauti record-sheet       # writes data/human/RECORD_THESE.md
-```
-Record yourself (and friends/family) reading the listed scripts, one file each (phone voice recorder is fine),
-named `<script_id>__<speaker>.wav`, e.g. `ta-003__hema.wav`, into `data/human/`. Then:
-```bash
-python -m kasauti ingest-human
-python -m kasauti run-all --profile core --yes     # only the new human variants cost API calls
-```
-Clips must be under 30 s (REST limit). Say the digits one by one, like the script.
+Mock mode uses simulated results. Do not present mock results as real Gnani API evaluation results.
 
-## 9. Final numbers (unbiased comparison)
-Adaptive mode is cheap but flatters alternative configs (it only re-runs the baseline's failures). For the
-configs you want to claim something about, set `sweep.mode: full` in `config.yaml` and re-run
-`python -m kasauti transcribe --profile core --yes` if credits allow (about 400 calls for core).
-Then:
-```bash
-python -m kasauti report
-```
-Outputs: `reports/summary.md`, `recommendations.md`, `by_condition.csv`, `by_config.csv`, `human_gap.csv`, `runs_scored.csv`.
-Changing scoring code never costs credits: `python -m kasauti score && python -m kasauti report`.
+> **Note:** The runtime test scripts and data are maintained separately from the public source repository. Add the required local test data before running a full evaluation.
 
-## 10. Demo and submission
-* `docs/DEMO_SCRIPT.md`: 60-second video script. Post the video on LinkedIn and/or X **early** (engagement is counted until the cutoff).
-* `docs/POST_TEMPLATE.md`: post text with the required tags/hashtags.
-* `docs/WRITEUP_TEMPLATE.md`: the written project explanation. Fill the `<<...>>` blanks from YOUR real results.
-* Submit through the programme page by **Nov 10, 2026** (final, no extensions). Do it Nov 9 night, not Nov 10.
-* Never buy or trade engagement; the terms prohibit it.
+## ⚠️ Limitations and Future Improvements
 
----
+Current limitations:
 
-## What the scores mean
-* **WER/CER**: after normalisation (native digits -> ASCII, digit-by-digit runs merged, punctuation and zero-width characters removed), so formatting choices don't masquerade as recognition errors.
-* **digit_exact**: phone/OTP/PIN/account strings recovered exactly (formats: digits, digit words in en/hi/ta/te, romanised Hindi digit words).
-* **amount_exact**: only scored for `format=transcribe` (other formats write amounts as words).
-* **name_match**: fuzzy match (>= 0.75 similarity) of the name inside any window of the transcript.
-* **lang_match**: `detected_language_code` equals the script language. This tag is derived from the transcript script, not the audio, and Hindi/Marathi can be confused on short utterances (Gnani's docs say so).
-* `transliterate` (off by default) has no ground truth, so only language-independent checks apply; Gnani notes its accuracy is unmeasured.
+- The human recording sample set is small.
+- Hindi and Telugu recordings need native-speaker validation.
+- Synthetic noise cannot represent every real call-centre environment.
+- The evaluation focuses on scripted speech rather than unrestricted conversations.
+- Results may vary depending on language, speaker, audio quality, and recognition configuration.
 
-## Known limitations (say these in your write-up; judges respect it)
-* Scripts are short, formulaic BFSI/support calls, not open conversation. Have a native speaker review hi/ta/te/hinglish texts.
-* The noise model is synthetic (babble from other TTS/human clips; white noise). Real call-centre noise differs.
-* `verbatim` writes English words in native script, so WER for code-mixed scripts under `verbatim` is inflated by script choice; compare formats on entity metrics.
-* Whole-signal SNR (silence included). Different from active-speech SNR.
-* Small n: with 4 scripts per group, per-group differences are anecdotal. Use the bootstrap CIs, report n.
-* Realtime (WebSocket) streaming is not covered. Gnani's quick-start and Prisma v3 page disagree on header names (`model` vs `x-model`), so I left it out rather than guess.
+Potential future improvements:
 
-## Troubleshooting
-| Symptom | Fix |
-|---|---|
-| `GNANI_API_KEY is not set` | Step 3. The file must be named `.env` in the project root. |
-| TTS 400 mentioning `audio_config`/`sample_rate` | In `config.yaml` set `tts.audio_config.sample_rate` to 44100 or 48000 (docs examples use those). Audio is resampled to 16 kHz locally anyway. |
-| TTS 400 listing supported voices | Use a Timbre **v3.0** voice (Shivani, Lakshmi, Kalpana, Chetana, Vasudha, Riyaa, Tarika, Avinash, Shubham, Prakash, Devansh, Yashraj, Harshad). |
-| STT 422 about `language_code` or `format` | Check `stt_configs` in `config.yaml` against https://docs.gnani.ai/api/STT/models/prisma-v3.md. |
-| STT 400 `INVALID_CONTEXT` | A script's `keyterms` broke a limit (<=200 items). |
-| 429 / rate limit | Lower `api.qps` and `api.workers` in `config.yaml`. |
-| Clip longer than 30 s warning | Shorten the script text. |
-| `no such table` / odd results after editing scripts | Scripts reload on every command; delete `data/kasauti.db` only if you want a full restart (it also forgets cached runs). |
+- Expand the dataset with native-speaker recordings.
+- Include more Indian languages and regional accents.
+- Add larger real-world telephony datasets.
+- Extend evaluation to streaming speech recognition.
+- Improve automated failure analysis and recommendations.
 
-## Project layout
-```
-config.yaml            all knobs (voices, conditions, STT configs, profiles, sweep mode)
-data/scripts.json      40 scripts with entities and keyterms
-kasauti/gnani.py       API client (retries, throttling)     kasauti/mock.py   offline simulator
-kasauti/degrade.py     telephony + noise lab                kasauti/textnorm.py  normalisation, WER, entity checks
-kasauti/pipeline.py    generate/degrade/transcribe/score    kasauti/recommend.py  paired bootstrap comparison
-kasauti/report.py      CSV + markdown reports               dashboard/app.py  Streamlit dashboard
-tests/                 17 unit + end-to-end (mock) tests
-```
+## 🚀 Future Vision
+
+Kasauti aims to become a practical evaluation toolkit for developers and enterprises building voice AI applications for India's multilingual environment.
+
+By identifying where speech recognition fails, especially on critical information, it can help teams build more reliable and robust voice experiences.
+
+## 👩‍💻 Author
+
+**Hema Ramachandran**
+
+B.Tech — Artificial Intelligence and Data Science
+
+- GitHub: [HemaRamachandran28](https://github.com/HemaRamachandran28)
+- LinkedIn: [Hema Ramachandran](https://www.linkedin.com/in/hema-ramachandran-1119b5279/)
+
+## 🏆 Built for the Great Indian AI Internship Challenge
+
+Built using Gnani AI's Timbre v3.0 and Prisma v3.0 APIs.
+
+**#GnaniAI #GreatIndianAIInternshipChallenge #IndicAI #VoiceAI #SpeechRecognition #ArtificialIntelligence**
