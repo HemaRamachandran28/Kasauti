@@ -1,0 +1,76 @@
+# Kasauti configuration. Everything you may want to tune lives here.
+
+api:
+  base_url: https://api.vachana.ai
+  timeout_s: 60
+  max_retries: 4
+  qps: 2            # max API requests per second (shared by TTS + STT)
+  workers: 3        # parallel requests
+
+tts:
+  model: timbre-v3.0
+  voices: [Shivani]          # Timbre v3.0 voices speak all 10 languages. Try: Avinash, Chetana, Devansh ...
+  variants: [plain]          # plain | whisper | shout   (uses Timbre v3.0 audio tags)
+  audio_config:              # copied from Gnani's quick-start; if the API rejects 16000, try 44100 or 48000
+    sample_rate: 16000
+    num_channels: 1
+    sample_width: 2
+    encoding: linear_pcm
+    container: wav
+  speed: 1.0
+
+groups: [en, hi, hinglish, ta, te]
+
+conditions:                  # "tel" = 300-3400 Hz band-limit + 8 kHz + mu-law (G.711-like)
+  - clean                    # "babble:N" / "white:N" = add noise at N dB SNR (noise is added before "tel")
+  - tel
+  - babble:20
+  - babble:10
+  - babble:5
+  - tel+babble:10
+  - tel+white:10
+
+stt_configs:                 # "@lang" -> script language code, "@keyterms" -> script keyterms (JSON)
+  baseline:
+    params: {model: prisma-v3.0, language_code: "@lang", format: transcribe}
+  auto:
+    params: {model: prisma-v3.0, language_code: indic-auto, format: transcribe}
+  keyterms:
+    params: {model: prisma-v3.0, language_code: "@lang", format: transcribe, keyterms: "@keyterms"}
+  verbatim:
+    params: {model: prisma-v3.0, language_code: "@lang", format: verbatim}
+  codemix:
+    params: {model: prisma-v3.0, language_code: "@lang", format: codemix}
+  v25:                       # experimental: Prisma v2.5 comparison (parameter names unverified)
+    enabled: false
+    params: {language_code: "@lang", enable_itn: "true"}
+  transliterate:             # no ground truth for romanised text, so WER is not computed
+    enabled: false
+    params: {model: prisma-v3.0, language_code: indic-auto, format: transliterate}
+
+sweep:
+  mode: adaptive             # adaptive = run baseline everywhere, other configs only on hard cases (saves credits)
+  baseline: baseline
+  hard_wer: 0.15             # a variant is "hard" if baseline WER > this ...
+  hard_entity_recall: 1.0    # ... or entity recall < this
+
+profiles:
+  smoke:
+    scripts_per_group: 1
+    conditions: [clean, "tel+babble:10"]
+    configs: [baseline, keyterms]
+  core:
+    scripts_per_group: 4
+    conditions: [clean, tel, "babble:10", "tel+babble:10", "babble:5"]
+    configs: [baseline, auto, keyterms, verbatim]
+  full:
+    scripts_per_group: 8
+    configs: [baseline, auto, keyterms, verbatim, codemix]
+
+paths:
+  db: data/kasauti.db
+  db_mock: data/kasauti_mock.db
+  audio: data/audio
+  audio_mock: data/audio_mock
+  reports: reports
+  reports_mock: reports_mock
